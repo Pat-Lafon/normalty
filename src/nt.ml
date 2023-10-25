@@ -51,6 +51,21 @@ module T = struct
     | Ty_constructor of (id * t list)
   [@@deriving sexp]
 
+  let rec to_string (ty : t) : id =
+    (match ty with
+      | Ty_unknown -> "unknown"
+      | Ty_var x -> x
+      | Ty_unit -> "()"
+      | Ty_int -> "int"
+      | Ty_bool -> "bool"
+      | Ty_list l -> to_string l ^ " list"
+      | Ty_tree t -> to_string t ^ " tree"
+      | Ty_arrow (t1, t2) -> Printf.sprintf "%s -> %s" (to_string t1) (to_string t2)
+      | Ty_tuple ts -> Printf.sprintf "(%s)" @@ String.concat ", " @@ List.map to_string ts
+      | Ty_constructor (id, args) ->
+          Printf.sprintf "%s(%s)" id (String.concat ", " @@ List.map to_string args)
+    )
+
   let is_basic_tp = function Ty_unit | Ty_int | Ty_bool -> true | _ -> false
 
   let is_dt = function
